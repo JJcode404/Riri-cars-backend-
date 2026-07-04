@@ -1,0 +1,186 @@
+{
+  "info": {
+    "name": "Riri Cars Backend",
+    "description": "REST API for Riri Cars — vehicles and recently sold listings.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "vehicleId", "value": "1", "type": "string" },
+    { "key": "recentlySoldId", "value": "1", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vehicles",
+      "item": [
+        {
+          "name": "List vehicles",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicles?page=1&pageSize=20&sortBy=createdAt&sortOrder=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicles"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "20" },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "description": "price | year | mileage | createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc",
+                  "description": "asc | desc"
+                },
+                { "key": "make", "value": "Toyota", "disabled": true },
+                { "key": "model", "value": "Corolla", "disabled": true },
+                { "key": "bodyType", "value": "SUV", "disabled": true },
+                {
+                  "key": "fuel",
+                  "value": "PETROL",
+                  "disabled": true,
+                  "description": "PETROL | DIESEL | HYBRID | ELECTRIC"
+                },
+                {
+                  "key": "drive",
+                  "value": "AWD",
+                  "disabled": true,
+                  "description": "TWO_WD | FOUR_WD | AWD"
+                },
+                {
+                  "key": "condition",
+                  "value": "JAPAN_IMPORT",
+                  "disabled": true,
+                  "description": "JAPAN_IMPORT | LOCAL_USED | BRAND_NEW"
+                },
+                {
+                  "key": "status",
+                  "value": "USED",
+                  "disabled": true,
+                  "description": "NEW | USED | CERTIFIED_PRE_OWNED"
+                },
+                { "key": "available", "value": "true", "disabled": true },
+                { "key": "minPrice", "value": "1000000", "disabled": true },
+                { "key": "maxPrice", "value": "3000000", "disabled": true },
+                { "key": "minYear", "value": "2015", "disabled": true },
+                { "key": "maxYear", "value": "2023", "disabled": true },
+                { "key": "search", "value": "hybrid", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get vehicle by id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicles/{{vehicleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicles", "{{vehicleId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create vehicle",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicles"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stockNumber\": \"RC-2001\",\n  \"year\": 2020,\n  \"make\": \"Toyota\",\n  \"model\": \"Premio\",\n  \"trim\": \"1.5X\",\n  \"price\": 1900000,\n  \"mileage\": 40000,\n  \"fuel\": \"PETROL\",\n  \"transmission\": \"CVT\",\n  \"engine\": \"1.5L 1NZ-FE\",\n  \"drive\": \"TWO_WD\",\n  \"bodyType\": \"Sedan\",\n  \"status\": \"USED\",\n  \"condition\": \"JAPAN_IMPORT\",\n  \"exteriorColor\": \"White\",\n  \"interiorColor\": \"Beige\",\n  \"description\": \"Well maintained Premio, single owner.\",\n  \"features\": [\"Push-start\", \"Rear camera\"],\n  \"available\": true,\n  \"image\": \"https://example.com/images/premio-1.jpg\",\n  \"gallery\": [\"https://example.com/images/premio-1.jpg\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Update vehicle",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicles/{{vehicleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicles", "{{vehicleId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 1850000,\n  \"available\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete vehicle",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/vehicles/{{vehicleId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vehicles", "{{vehicleId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recently Sold",
+      "item": [
+        {
+          "name": "List recently sold",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/recently-sold?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "recently-sold"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "default 10, max 50"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add recently sold",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/recently-sold",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "recently-sold"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"year\": 2017,\n  \"make\": \"Honda\",\n  \"model\": \"Fit\",\n  \"trim\": \"Hybrid\",\n  \"bodyType\": \"Hatchback\",\n  \"price\": 1150000,\n  \"image\": \"https://example.com/images/fit-1.jpg\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

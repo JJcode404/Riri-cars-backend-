@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum FuelType {
+  PETROL
+  DIESEL
+  HYBRID
+  ELECTRIC
+}
+
+enum DriveType {
+  TWO_WD
+  FOUR_WD
+  AWD
+}
+
+enum VehicleCondition {
+  JAPAN_IMPORT
+  LOCAL_USED
+  BRAND_NEW
+}
+
+enum VehicleStatus {
+  NEW
+  USED
+  CERTIFIED_PRE_OWNED
+}
+
+model Vehicle {
+  id             Int              @id @default(autoincrement())
+  stockNumber    String           @unique
+  year           Int
+  make           String
+  model          String
+  trim           String?
+  price          Int
+  mileage        Int
+  fuel           FuelType
+  transmission   String
+  engine         String
+  drive          DriveType
+  bodyType       String
+  status         VehicleStatus    @default(USED)
+  condition      VehicleCondition @default(JAPAN_IMPORT)
+  exteriorColor  String
+  interiorColor  String
+  description    String           @db.Text
+  features       String[]
+  available      Boolean          @default(true)
+  image          String
+  gallery        String[]
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([make, model])
+  @@index([price])
+  @@index([available])
+}
+
+model RecentlySold {
+  id        Int      @id @default(autoincrement())
+  year      Int
+  make      String
+  model     String
+  trim      String?
+  bodyType  String
+  price     Int
+  image     String
+
+  soldAt    DateTime @default(now())
+
+  @@index([soldAt])
+}
