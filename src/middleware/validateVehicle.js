@@ -20,20 +20,31 @@ const REQUIRED_FIELDS = [
   "exteriorColor",
   "interiorColor",
   "description",
-  "image",
 ];
 
 function validateCreate(req, res, next) {
-  const missing = REQUIRED_FIELDS.filter((field) => req.body[field] === undefined || req.body[field] === null || req.body[field] === "");
-  if (missing.length > 0) {
-    return next(new ApiError(400, `Missing required field(s): ${missing.join(", ")}`));
+  const body = req.body || {};
+  const missing = REQUIRED_FIELDS.filter(
+    (field) =>
+      body[field] === undefined || body[field] === null || body[field] === "",
+  );
+
+  if ((!req.files || req.files.length === 0) && !body.image) {
+    missing.push("image");
   }
-  const error = validateShared(req.body);
+
+  if (missing.length > 0) {
+    return next(
+      new ApiError(400, `Missing required field(s): ${missing.join(", ")}`),
+    );
+  }
+
+  const error = validateShared(body);
   next(error || undefined);
 }
 
 function validateUpdate(req, res, next) {
-  const error = validateShared(req.body);
+  const error = validateShared(req.body || {});
   next(error || undefined);
 }
 
@@ -45,7 +56,10 @@ function validateShared(body) {
     return new ApiError(400, `drive must be one of: ${DRIVE_TYPES.join(", ")}`);
   }
   if (body.condition !== undefined && !CONDITIONS.includes(body.condition)) {
-    return new ApiError(400, `condition must be one of: ${CONDITIONS.join(", ")}`);
+    return new ApiError(
+      400,
+      `condition must be one of: ${CONDITIONS.join(", ")}`,
+    );
   }
   if (body.status !== undefined && !STATUSES.includes(body.status)) {
     return new ApiError(400, `status must be one of: ${STATUSES.join(", ")}`);
@@ -68,4 +82,11 @@ function validateShared(body) {
   return null;
 }
 
-module.exports = { validateCreate, validateUpdate, FUEL_TYPES, DRIVE_TYPES, CONDITIONS, STATUSES };
+module.exports = {
+  validateCreate,
+  validateUpdate,
+  FUEL_TYPES,
+  DRIVE_TYPES,
+  CONDITIONS,
+  STATUSES,
+};

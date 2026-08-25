@@ -8,7 +8,17 @@ const { notFound, errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  "https://riri-cars.onrender.com",
+  "http://localhost:3000",
+  "http://localhost:5173",
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+  }),
+);
 app.use(express.json());
 app.use(morgan("dev"));
 

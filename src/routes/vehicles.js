@@ -1,7 +1,12 @@
 const express = require("express");
 const asyncHandler = require("../middleware/asyncHandler");
 const requireAuth = require("../middleware/requireAuth");
-const { validateCreate, validateUpdate } = require("../middleware/validateVehicle");
+const requireAdmin = require("../middleware/requireAdmin");
+const {
+  validateCreate,
+  validateUpdate,
+} = require("../middleware/validateVehicle");
+const { uploadVehicleImages } = require("../middleware/uploadImages");
 const {
   listVehicles,
   getVehicle,
@@ -14,7 +19,14 @@ const router = express.Router();
 
 router.get("/", asyncHandler(listVehicles));
 router.get("/:id", asyncHandler(getVehicle));
-router.post("/", requireAuth, validateCreate, asyncHandler(createVehicle));
+router.post(
+  "/",
+  requireAuth,
+  requireAdmin,
+  uploadVehicleImages,
+  validateCreate,
+  asyncHandler(createVehicle),
+);
 router.put("/:id", requireAuth, validateUpdate, asyncHandler(updateVehicle));
 router.delete("/:id", requireAuth, asyncHandler(deleteVehicle));
 

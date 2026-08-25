@@ -1,5 +1,40 @@
 const prisma = require("../lib/prisma");
 const { ApiError } = require("../middleware/errorHandler");
+const { uploadImage } = require("../lib/cloudinary");
+
+function parseArrayField(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== "string") return [];
+
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) return parsed;
+  } catch (_err) {
+    // ignore
+  }
+
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function normalizeVehicleBody(body) {
+  return {
+    ...body,
+    year: body.year !== undefined ? Number(body.year) : undefined,
+    price: body.price !== undefined ? Number(body.price) : undefined,
+    mileage: body.mileage !== undefined ? Number(body.mileage) : undefined,
+    available:
+      body.available === undefined
+        ? undefined
+        : body.available === true || body.available === "true",
+    features:
+      body.features !== undefined ? parseArrayField(body.features) : undefined,
+    gallery:
+      body.gallery !== undefined ? parseArrayField(body.gallery) : undefined,
+  };
+}
 
 function parseId(req) {
   const id = Number(req.params.id);
@@ -18,7 +53,8 @@ function buildWhere(query) {
   if (query.drive) where.drive = query.drive;
   if (query.condition) where.condition = query.condition;
   if (query.status) where.status = query.status;
-  if (query.bodyType) where.bodyType = { equals: query.bodyType, mode: "insensitive" };
+  if (query.bodyType)
+    where.bodyType = { equals: query.bodyType, mode: "insensitive" };
 
   if (query.available !== undefined) {
     where.available = query.available === "true";
@@ -54,7 +90,9 @@ async function listVehicles(req, res) {
   const where = buildWhere(req.query);
 
   const sortableFields = ["price", "year", "mileage", "createdAt"];
-  const sortBy = sortableFields.includes(req.query.sortBy) ? req.query.sortBy : "createdAt";
+  const sortBy = sortableFields.includes(req.query.sortBy)
+    ? req.query.sortBy
+    : "createdAt";
   const sortOrder = req.query.sortOrder === "asc" ? "asc" : "desc";
 
   const [vehicles, total] = await Promise.all([
@@ -88,13 +126,39 @@ async function getVehicle(req, res) {
 }
 
 async function createVehicle(req, res) {
-  const vehicle = await prisma.vehicle.create({ data: req.body });
+  const { body, files } = req;
+  const normalizedBody = normalizeVehicleBody(body || {});
+  const gallery = [];
+  let image = normalizedBody.image;
+
+  if (files && files.length > 0) {
+    const uploadPromises = files.map((file, index) =>
+      uploadImage(file.buffer, {
+        folder: `riri-cars/${normalizedBody.make || "unknown"}-${normalizedBody.model || "vehicle"}`,
+        publicId: `${normalizedBody.stockNumber || `vehicle-${Date.now()}`}-${index + 1}`,
+      }),
+    );
+    const urls = await Promise.all(uploadPromises);
+    image = urls[0];
+    gallery.push(...urls.slice(1));
+  }
+
+  const vehicle = await prisma.vehicle.create({
+    data: {
+      ...normalizedBody,
+      image,
+      gallery,
+    },
+  });
   res.status(201).json(vehicle);
 }
 
 async function updateVehicle(req, res) {
   const id = parseId(req);
-  const vehicle = await prisma.vehicle.update({ where: { id }, data: req.body });
+  const vehicle = await prisma.vehicle.update({
+    where: { id },
+    data: req.body,
+  });
   res.json(vehicle);
 }
 
