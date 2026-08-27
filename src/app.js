@@ -10,6 +10,8 @@ const app = express();
 
 const allowedOrigins = [
   "https://riri-cars.onrender.com",
+  "https://riri-cars-kenya-frontend.vercel.app",
+  "https://riricars.co.ke",
   "http://localhost:3000",
   "http://localhost:5174",
 ];
